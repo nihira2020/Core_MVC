@@ -1,0 +1,165 @@
+﻿
+@{
+    ViewData["Title"] = "Create";
+}
+@model Global.Entity.Employee;
+<div class="card">
+    <div class="card-title">
+        <h2>Create/Edit Employee</h2>
+    </div>
+    <div class="card-body">
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label>Code</label>
+                    <input id="txtcode" value="@Model.Code" disabled="disabled" class="form-control" />
+                </div>
+            </div>
+        </div>
+
+         <div class="row">
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input id="txtname" value="@Model.Name"  class="form-control" />
+                </div>
+            </div>
+        </div>
+
+          <div class="row">
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input id="txtemail" value="@Model.Email"  class="form-control" />
+                </div>
+            </div>
+        </div>
+
+          <div class="row">
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input id="txtphone" value="@Model.Phone" class="form-control" />
+                </div>
+            </div>
+        </div>
+
+          <div class="row">
+            <div class="col-lg-6">
+                <div class="form-group">
+                    <label>Role</label>
+                    <input type="hidden" id="hdnrole" value="@Model.Designation" />
+                    <select id="ddlrole"   class="form-control">
+                        <option value="">Select Role</option>
+                        <option value="admin">Admin</option>
+                        <option value="developer">Developer</option>
+
+                    </select>
+                    @*<input id="txtname"  class="form-control" />*@
+                </div>
+            </div>
+        </div>
+
+         <div class="row">
+            <div class="col-lg-6">
+                <div class="form-group" style="margin-top:10px">
+                   <a onclick="handlesave()" class="btn btn-success">Save</a> <a onclick="backtolist()" class="btn btn-danger">Cancel</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript">
+
+$(document).ready(function() {
+    var id = $('#hdnrole').val();
+    $('#ddlrole').val(id);
+})
+function backtolist() {
+    window.location.href = "/employee";
+}
+
+function handlesave() {
+    var code = $('#txtcode').val();
+     var name = $('#txtname').val();
+      var email = $('#txtemail').val();
+       var phone = $('#txtphone').val();
+        var role = $('#ddlrole').val();
+
+    var isproceed = true;
+
+        // validation
+
+    if (name != '' && name != null) {
+        $('#txtname').css('border-color', '#ccc');
+    }else{
+        $('#txtname').css('border-color', 'red');
+        isproceed = false;
+    }
+
+    if (email != '' && email != null) {
+        $('#txtemail').css('border-color', '#ccc');
+    }else{
+        $('#txtemail').css('border-color', 'red');
+        isproceed = false;
+    }
+
+    if (role != '' && role != null) {
+        $('#ddlrole').css('border-color', '#ccc');
+    }else{
+        $('#ddlrole').css('border-color', 'red');
+        isproceed = false;
+    }
+
+    if (isproceed) {
+
+        var _employee = new Object();
+        _employee.Code = parseInt(code);
+        _employee.Name = name;
+        _employee.Email = email;
+        _employee.Phone = phone;
+        _employee.Designation = role;
+
+         var _subobj = new Object();
+         _subobj.Name = name;
+
+         var _detail = [];
+        _detail.push({
+            Name: name
+        });
+
+        _employee.empdata = _detail;
+         _employee.emphead = _subobj;
+
+        var testdata = 'testing';
+
+        $.ajax({
+            type: "POST",
+            url: "/Employee/Save",
+            data: _employee,
+            //data: '{"test":' + testdata + '}',
+            //contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            async: false,
+            success: function(data) {
+                if (data == 'pass') {
+                    alert('Saved successfully.');
+                    backtolist();
+                } else {
+                    alert("Failure due to :" + data)
+                }
+            },
+            failure: function(err) {
+
+            }
+        });
+    }
+
+}
+</script>
+
+

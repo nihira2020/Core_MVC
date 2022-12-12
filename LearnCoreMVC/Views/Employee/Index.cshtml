@@ -1,0 +1,122 @@
+﻿@model List<Global.Entity.Employee>
+
+    <div class="card">
+      
+        <div class="card-body">
+             <a class="btn btn-success" asp-controller="Employee" asp-action="Create">Add New</a>
+            <div class="card-title">
+                <h2>Employee Listing</h2>
+            </div>
+            
+            <table class="table table-bordered table-striped" id='tbllist'>
+                <thead class="bg-dark text-white">
+                    <tr>
+                        <td>Code</td>
+                        <td>Name</td>
+                        <td>Email</td>
+                        <td>Phone</td>
+                        <td>Role</td>
+                        <td>Action</td>
+                    </tr>
+                </thead>
+                <tbody>
+                @*@foreach(Global.Entity.Employee item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(itemdisplay=>item.Code)
+                            @Html.HiddenFor(itemdisplay=>item.Code)
+                        </td>
+                          <td>
+                            @Html.DisplayFor(itemdisplay=>item.Name)
+                        </td>
+                          <td>
+                            @Html.DisplayFor(itemdisplay=>item.Email)
+                        </td>
+                          <td>
+                            @Html.DisplayFor(itemdisplay=>item.Phone)
+                        </td>
+                          <td>
+                            @Html.DisplayFor(itemdisplay=>item.Designation)
+                        </td>
+                        <td>
+                            <a onclick="FunEdit(this)" class="btn btn-primary">Edit</a> | 
+                            <a onclick="FunRemove(this)" class="btn btn-danger">Remove</a>
+                        </td>
+                    </tr>
+                }*@
+            </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.js"></script>
+<style type="text/css">
+    #tbllist_filter{
+        margin-bottom:1%;
+    }
+</style>
+    <script type="text/javascript">
+var js = jQuery.noConflict(true);
+js(document).ready(function() {
+    //js('#tbllist').DataTable({
+
+    //});
+    LoadListing();
+});
+function FunEdit(element) {
+    var code = $(element).closest('tr').find('input[type=hidden]').val();
+   window.location.href = "/employee/Edit?code="+code;
+}
+
+function FunRemove(element) {
+    var code = $(element).closest('tr').find('input[type=hidden]').val();
+    if (confirm("do you want to remove?")) {
+        $.ajax({
+            type: "POST",
+            url: "/Employee/Remove",
+            data: { code: code },
+            success: function(data) {
+                if (data == 'pass') {
+                    alert('Removed successfully.');
+                    window.location.reload();
+                } else {
+                    alert("Failure due to :" +data)
+                }
+            },
+            failure: function(err) {
+
+            }
+        });
+    }
+   //window.location.href = "/employee/Edit?code="+code;
+}
+function LoadListing() {
+    var empdata = [];
+    $.ajax({
+        type: "POST",
+        url: "/Employee/GetAll",
+        async: false,
+        success: function(data) {
+            $.each(data, function(key, value) {
+                var editbtn = "<a onclick='FunEdit(this)' class='btn btn-primary'>Edit</a>";
+                var removebtn = "<a onclick='FunRemove(this)' class='btn btn-danger'>Remove</a>";
+                var hdn = "<input type='hidden' value=" + value.code + " />";
+                var action = editbtn +" | "+ removebtn + hdn;
+                empdata.push([value.code, value.name, value.email, value.phone, value.designation,action])
+            })
+        },
+        failure: function(err) {
+
+        }
+    });
+    js('#tbllist').DataTable({
+        data: empdata
+    });
+}
+
+    </script>
